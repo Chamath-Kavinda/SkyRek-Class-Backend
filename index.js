@@ -41,9 +41,9 @@ mongoose.connect("mongodb+srv://chamath:Chamath13243546@cluster.ru1f3di.mongodb.
 
 
 
-app.use("/products", productRouter)
-app.use("/users", userRouter)
-app.use("/orders", orderRouter)
+app.use("/api/products", productRouter)
+app.use("/api/users", userRouter)
+app.use("/api/orders", orderRouter)
 
 
 
