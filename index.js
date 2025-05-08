@@ -6,7 +6,9 @@ import userRouter from './routes/userRouter.js';
 import jwt from 'jsonwebtoken';
 import orderRouter from './routes/orderRouter.js';
 import cors from 'cors';
+import dotenv from 'dotenv';
 
+dotenv.config();
 const app = express();
 const port = 3000;
 
@@ -18,7 +20,7 @@ app.use((req, res, next) => {
     if(tokenString != null) {
         const token = tokenString.replace("Bearer ", "")   
 
-        jwt.verify(token, "SKYREK-CLASS", (err, decoded) => {
+        jwt.verify(token, process.env.JWT_KEY, (err, decoded) => {
             if(decoded != null){
                 req.user = decoded
                 next()
@@ -33,7 +35,7 @@ app.use((req, res, next) => {
     }
 })
 
-mongoose.connect("mongodb+srv://chamath:Chamath13243546@cluster.ru1f3di.mongodb.net/?retryWrites=true&w=majority&appName=Cluster").then(() => {
+mongoose.connect(process.env.MONGODB_URL).then(() => {
     console.log("Connected to the Database!")
 }).catch(() => {
     console.log("Database onnection Failed!")

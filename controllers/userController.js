@@ -1,6 +1,9 @@
 import User from "../models/user.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export function createUser(req, res) {
     if (req.body.role == "admin") {
@@ -64,7 +67,7 @@ export function loginUser(req, res) {
                 lastName : user.lastName,
                 role : user.role,
                 img : user.img
-            },"SKYREK-CLASS")
+            }, process.env.JWT_KEY)
 
 
             if (isPasswordCorrect) {
