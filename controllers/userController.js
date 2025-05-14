@@ -29,7 +29,6 @@ export function createUser(req, res) {
         firstName : req.body.firstName,
         lastName : req.body.lastName,
         password : hashedPassword,
-        role : req.body.role,
     });
 
     user.save().then(() => {
@@ -66,7 +65,7 @@ export function loginUser(req, res) {
                 firstName : user.firstName,
                 lastName : user.lastName,
                 role : user.role,
-                img : user.img
+                image : user.image
             }, process.env.JWT_KEY)
 
 
@@ -74,7 +73,8 @@ export function loginUser(req, res) {
 
                 res.status(200).json({
                     message : "Login successfull",
-                    token : token
+                    token : token,
+                    role : user.role
                 })
             } else {
                 res.status(404).json({

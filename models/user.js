@@ -28,7 +28,7 @@ const userSchema = mongoose.Schema({
         required : true,
         default : false
     },
-    img : {
+    image : {
         type : String,
         required : false,
         default : "https://avatar.iran.liara.run/public/boy?username=Ash"
