@@ -25,9 +25,10 @@ export function createUser(req, res) {
     const hashedPassword = bcrypt.hashSync(req.body.password, 10)
 
     const user = new User({
-        email : req.body.email,
+        image: req.body.image,
         firstName : req.body.firstName,
         lastName : req.body.lastName,
+        email : req.body.email,
         password : hashedPassword,
     });
 
