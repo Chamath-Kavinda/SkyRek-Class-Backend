@@ -1,5 +1,6 @@
 import Order from "../models/order.js";
 import Product from "../models/product.js";
+import { isAdmin } from "./userController.js";
 
 export async function createOrder(req, res) {
   if (req.user == null) {
@@ -116,5 +117,36 @@ export async function getOrder(req, res) {
       message: "Failed to fetch orders",
       error: err,
     });
+  }
+}
+
+export async function updateOrderStatus(req, res) {
+  if (!isAdmin(req)) {
+    res.status(403).json({
+      message: "Please login and try again",
+    });
+    return;
+  }
+
+  try{
+    const orderId = req.params.orderId
+    const status = req.params.status
+
+    await Order.updateOne({
+      orderId : orderId 
+    },{
+      status: status
+    })
+
+    res.json({
+      message: "Order satus updated successfully"
+    })
+
+  }catch(err){
+    res.status(500).json({
+      message: "Failed to update order satatus",
+      error: err,
+    });
+    return;
   }
 }
