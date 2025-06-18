@@ -163,106 +163,122 @@ export async function loginWithGoogle(req, res) {
 }
 
 const transport = nodemailer.createTransport({
-    service: 'gmail',
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    auth: {
-        user: "chamakavi4@gmail.com",
-        pass: "hmsrvfzqsghshqiz"
-    }
-})
+  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: "chamakavi4@gmail.com",
+    pass: "hmsrvfzqsghshqiz",
+  },
+});
 
 export async function sendOTP(req, res) {
-    const randomOTP = Math.floor(100000 + Math.random() * 900000);
-    const email = req.body.email;
-    if (email == null) {
-        res.status(400).json({
-            message: "Email is required"
-        })
-        return
+  const randomOTP = Math.floor(100000 + Math.random() * 900000);
+  const email = req.body.email;
+  if (email == null) {
+    res.status(400).json({
+      message: "Email is required",
+    });
+    return;
+  }
+
+  const user = await User.findOne({
+    email: email,
+  });
+
+  if (user == null) {
+    res.status(404).json({
+      message: "User not found",
+    });
+    return;
+  }
+
+  //delete all otps
+  await OTP.deleteMany({
+    email: email,
+  });
+
+  const message = {
+    from: "chamakavi4@gmail.com",
+    to: email,
+    subject: "Resetting password for Chama Clothes",
+    text: "This is your password reset OTP : " + randomOTP,
+  };
+
+  const otp = new OTP({
+    email: email,
+    otp: randomOTP,
+  });
+
+  await otp.save();
+
+  transport.sendMail(message, (error, indor) => {
+    if (error) {
+      res.status(500).json({
+        message: "Failed to send OTP",
+        error: error,
+      });
+    } else {
+      res.status(200).json({
+        message: "OTP sent successfully",
+        otp: randomOTP,
+      });
     }
-
-    const user = await User.findOne({
-        email: email
-    })
-
-    if (user == null) {
-        res.status(404).json({
-            message: "User not found"
-        })
-    }
-
-    //delete all otps
-    await OTP.deleteMany({
-        email: email
-    })
-
-    const message = {
-        from : "chamakavi4@gmail.com",
-        to: email,
-        subject: "Resetting password for Chama Clothes",
-        text: "This is your password reset OTP : " + randomOTP
-    }
-
-    const otp = new OTP({
-      email: email,
-      otp: randomOTP
-    })
-
-    await otp.save()
-
-    transport.sendMail(message, (error, indor) => {
-        if (error) {
-            res.status(500).json({
-                message: "Failed to send OTP",
-                error: error 
-            })
-        } else {
-            res.status(200).json({
-                message: "OTP sent successfully",
-                otp: randomOTP 
-            })
-        }
-    })
+  });
 }
 
 export async function resetPassword(req, res) {
-  const otp = req.body.otp
-  const email = req.body.email
-  const newPassword = req.body.newPassword
+  const otp = req.body.otp;
+  const email = req.body.email;
+  const newPassword = req.body.newPassword;
 
   const response = await OTP.findOne({
-    email: email
-  })
+    email: email,
+  });
 
   if (response == null) {
     res.status(500).json({
-      message: "No otp requests found please try again"
-    })
-    return
+      message: "No otp requests found please try again",
+    });
+    return;
   }
 
   if (otp == response.otp) {
     await OTP.deleteMany({
-      email: email
-    })
+      email: email,
+    });
 
     const hashedPassword = bcrypt.hashSync(newPassword, 10);
 
     const response2 = await User.updateOne(
-      {email: email},
-      {password: hashedPassword}
-    )
+      { email: email },
+      { password: hashedPassword }
+    );
 
     res.json({
-      message: "password has been reset successfully"
-    })
+      message: "password has been reset successfully",
+    });
   } else {
     res.status(403).json({
-      message: "OPTs are not matching"
-    })
-    return
+      message: "OPTs are not matching",
+    });
+    return;
+  }
+}
+
+export function checkAdmin(req, res) {
+
+  if (isAdmin(req)) {
+    res.status(200).json({
+      message: "Your Admin",
+      role: "admin"
+    });
+  } else {
+    res.status(200).json({
+      message: "Your Not Admin",
+      role: "customer"
+    });
   }
 }
 
