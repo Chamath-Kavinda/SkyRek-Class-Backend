@@ -169,7 +169,7 @@ const transport = nodemailer.createTransport({
   secure: false,
   auth: {
     user: "chamakavi4@gmail.com",
-    pass: "hmsrvfzqsghshqiz",
+    pass: process.env.SMTP_KEY,
   },
 });
 
